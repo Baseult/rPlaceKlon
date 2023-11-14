@@ -1,0 +1,35 @@
+<!-- Der gegebene Code ist eine HTML-Seite, die eine Weiterleitung auf die Login Seite ermöglicht.   -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Referr</title>
+</head>
+<body>
+
+<p>Klick auf den Button um auf die ShloPlace Website weitergeleitet zu werden:</p>
+<button id="visitButton">Zu ShloPlace</button>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Erhalte eine Referenz auf das Button-Element
+        var visitButton = document.getElementById("visitButton");
+
+        // Füge einen Klick-Event-Listener hinzu
+        visitButton.addEventListener("click", function() {
+            // Navigiere zur angegebenen URL, wenn der Button geklickt wird
+            window.location.href = "/login/autologin.php";
+        });
+    });
+</script>
+
+<script>
+    // Diese JavaScript-Funktion wird beim Laden der Seite aufgerufen
+    window.onload = function() {
+        // Weiterleitung zur angegebenen URL
+        window.location.href = "/login/autologin.php";
+    };
+</script>
+
+</body>
+</html>

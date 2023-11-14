@@ -1,0 +1,722 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    -ms-interpolation-mode: bicubic;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    font-family: "Dosis", "Lato", sans-serif;
+}
+
+#canvasx {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: scale(1);
+    -ms-interpolation-mode: bicubic;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    touch-action: none;
+}
+
+#canvasx.show {
+    opacity: 1;
+}
+
+#svg-overlay {
+    position: absolute;
+    pointer-events: none;
+}
+
+#gray-square {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: gray;
+    /* Set the initial size of the square */
+    width: 50px;
+    height: 50px;
+    transform-origin: top left; /* Set the transform origin to top left */
+}
+
+#colorPalette {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    border: 2px solid black;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 150px;
+}
+
+/* Style each color in the palette */
+.color {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+}
+
+.color-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: 5%;
+}
+
+.selected-color {
+    border: 2px solid orange;
+    box-shadow: 0 0 5px orange;
+}
+
+.buttons-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* margin-top: 10px; */
+    width: 100%;
+    height: 100%;
+}
+
+#closeButton,
+#applyButton {
+    position: relative;
+    width: 200px;
+    height: 30px;
+    background-color: #ffc6c6;
+    border: 2px solid #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 201;
+    margin-left: 35px;
+    margin-right: 5px;
+}
+
+#applyButton {
+    position: relative;
+    left: 30px;
+    width: 200px;
+    top: 0%;
+    height: 30px;
+    color: white;
+    background-color: #2d2d2d;
+    border: 2px solid #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 201;
+    margin-left: 5px;
+    margin-right: 35px;
+}
+
+#colorPaletteContainer {
+    position: fixed;
+    top: 35px;
+    right: 35px;
+    display: none; /* Hide the color palette panel by default */
+    z-index: 200; /* Higher z-index to ensure it appears above the canvas */
+}
+
+#colorPaletteContainer.open {
+    display: block;
+}
+
+/* Add styles for the "Paint" button */
+.paint-button {
+    position: fixed;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #cb5105;
+    color: white;
+    padding: 10px 20px;
+    border: 4px solid black;
+    cursor: pointer;
+    text-align: center;
+    z-index: 100;
+    opacity: 0;
+    height: 35px;
+    width: 100px;
+    transition: opacity 1.5s ease;
+    font-family: Consolas, serif;
+    font-weight: bold;
+}
+
+.paint-button.show {
+    /* Set the opacity to 0 when hidden */
+    opacity: 1;
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    display: none; /* Hide the overlay by default */
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: red;
+    display: flex;
+    z-index: 100000;
+    flex-direction: column; /* Add this to make the text and spinner appear in separate lines */
+    transition: opacity 1.5s ease;
+}
+
+#loadingOverlay.hidden {
+    /* Set the opacity to 0 when hidden */
+    opacity: 0;
+    pointer-events: none; /* Make it transparent to mouse events */
+}
+
+.loading-text {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 210px;
+}
+
+.tetrominos {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-112px, -96px);
+}
+
+.tetromino {
+    width: 96px;
+    height: 112px;
+    position: absolute;
+    transition: all ease 0.3s;
+    background: url('data:image/svg+xml;utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 684"%3E%3Cpath fill="%23010101" d="M305.7 0L0 170.9v342.3L305.7 684 612 513.2V170.9L305.7 0z"/%3E%3Cpath fill="%23fff" d="M305.7 80.1l-233.6 131 233.6 131 234.2-131-234.2-131"/%3E%3C/svg%3E') no-repeat top center;
+}
+
+.box1 {
+    -webkit-animation: tetromino1 1.5s ease-out infinite;
+    animation: tetromino1 1.5s ease-out infinite;
+}
+
+.box2 {
+    -webkit-animation: tetromino2 1.5s ease-out infinite;
+    animation: tetromino2 1.5s ease-out infinite;
+}
+
+.box3 {
+    -webkit-animation: tetromino3 1.5s ease-out infinite;
+    animation: tetromino3 1.5s ease-out infinite;
+    z-index: 2;
+}
+
+.box4 {
+    -webkit-animation: tetromino4 1.5s ease-out infinite;
+    animation: tetromino4 1.5s ease-out infinite;
+}
+
+@keyframes tetromino1 {
+    0%, 40% {
+        /* compose logo */
+        /* 1 on 3 */
+        /* L-shape */
+        transform: translate(0, 0);
+    }
+    50% {
+        /* pre-box */
+        transform: translate(48px, -27px);
+    }
+    60%, 100% {
+        /* box */
+        /* compose logo */
+        transform: translate(96px, 0);
+    }
+}
+
+@keyframes tetromino2 {
+    0%, 20% {
+        /* compose logo */
+        /* 1 on 3 */
+        transform: translate(96px, 0px);
+    }
+    40%, 100% {
+        /* L-shape */
+        /* box */
+        /* compose logo */
+        transform: translate(144px, 27px);
+    }
+}
+
+@keyframes tetromino3 {
+    0% {
+        /* compose logo */
+        transform: translate(144px, 27px);
+    }
+    20%, 60% {
+        /* 1 on 3 */
+        /* L-shape */
+        /* box */
+        transform: translate(96px, 54px);
+    }
+    90%, 100% {
+        /* compose logo */
+        transform: translate(48px, 27px);
+    }
+}
+
+@keyframes tetromino4 {
+    0%, 60% {
+        /* compose logo */
+        /* 1 on 3 */
+        /* L-shape */
+        /* box */
+        transform: translate(48px, 27px);
+    }
+    90%, 100% {
+        /* compose logo */
+        transform: translate(0, 0);
+    }
+}
+
+#load {
+    position: absolute;
+    width: 600px;
+    height: 36px;
+    left: 50%;
+    top: 65%;
+    margin-left: -300px;
+    overflow: visible;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+#load div {
+    position: absolute;
+    width: 20px;
+    height: 36px;
+    opacity: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    animation: move 2s linear infinite;
+    -o-animation: move 2s linear infinite;
+    -moz-animation: move 2s linear infinite;
+    -webkit-animation: move 2s linear infinite;
+    transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    color: #35C4F0;
+}
+
+#load div:nth-child(2) {
+    animation-delay: 0.2s;
+    -o-animation-delay: 0.2s;
+    -moz-animation-delay: 0.2s;
+    -webkit-animation-delay: 0.2s;
+}
+
+#load div:nth-child(3) {
+    animation-delay: 0.4s;
+    -o-animation-delay: 0.4s;
+    -webkit-animation-delay: 0.4s;
+    -webkit-animation-delay: 0.4s;
+}
+
+#load div:nth-child(4) {
+    animation-delay: 0.6s;
+    -o-animation-delay: 0.6s;
+    -moz-animation-delay: 0.6s;
+    -webkit-animation-delay: 0.6s;
+}
+
+#load div:nth-child(5) {
+    animation-delay: 0.8s;
+    -o-animation-delay: 0.8s;
+    -moz-animation-delay: 0.8s;
+    -webkit-animation-delay: 0.8s;
+}
+
+#load div:nth-child(6) {
+    animation-delay: 1s;
+    -o-animation-delay: 1s;
+    -moz-animation-delay: 1s;
+    -webkit-animation-delay: 1s;
+}
+
+#load div:nth-child(7) {
+    animation-delay: 1.2s;
+    -o-animation-delay: 1.2s;
+    -moz-animation-delay: 1.2s;
+    -webkit-animation-delay: 1.2s;
+}
+
+@keyframes move {
+    0% {
+        left: 0;
+        opacity: 0;
+    }
+    35% {
+        left: 41%;
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    65% {
+        left: 59%;
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        -o-transform: rotate(0deg);
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        left: 100%;
+        -moz-transform: rotate(-180deg);
+        -webkit-transform: rotate(-180deg);
+        -o-transform: rotate(-180deg);
+        transform: rotate(-180deg);
+        opacity: 0;
+    }
+}
+
+.warning-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.warning-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #ff0000; /* Red background */
+    color: #000000; /* White text */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); /* Add a red box shadow */
+}
+
+.warning-icon {
+    font-size: 35px;
+    margin-bottom: 20px;
+    animation: pulsate 1s ease-in-out infinite;
+}
+
+.warning-text {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.warning-modal.show {
+    animation: fadeInZoomIn 0.5s ease-in-out;
+    display: block;
+}
+
+@keyframes pulsate {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.logox {
+    /* Your existing logo styles */
+    position: fixed;
+    top: 20px; /* Adjust the distance from the top as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Roboto Condensed', sans-serif; /* Use Roboto Condensed font */
+    font-weight: 700; /* Set the font weight to bold for a more epic look */
+    font-size: 48px; /* Adjust the font size as needed */
+    color: #ffffff; /* Set the color to blue */
+    letter-spacing: 3px; /* Add some letter-spacing for spacing between characters */
+    z-index: 999; /* Make sure the logo stays on top */
+    text-shadow: 0 0 5px black;
+    opacity: 0.5;
+}
+
+.logo-image {
+    /* Set the position and size of the image */
+    position: fixed;
+    top: 70px; /* Adjust the distance from the top as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75px; /* Adjust the width as needed */
+    height: auto; /* Maintain the aspect ratio */
+    z-index: 998; /* Place the image below the text logo but above other content */
+}
+
+.leaderboard-container {
+    position: absolute;
+    top: 50%;
+    left: -230px;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 225px;
+    height: 100%;
+    transition: left 0.3s ease;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+}
+
+.leaderboard {
+    padding: 10px;
+    color: #fff;
+}
+
+.leaderboard-button {
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    transform: translateY(-50%);
+    background-color: #000;
+    color: #fff;
+    padding: 8px;
+    /* border-radius: 5px 0 0 5px; */
+    cursor: pointer;
+    z-index: 2;
+}
+
+.leaderboard-container.open {
+    left: 0;
+}
+
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.leaderboard-rank,
+.leaderboard-user,
+.leaderboard-pixel {
+    flex: 1;
+    text-align: center;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#pixelOwnerContainer {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+    pointer-events: none; /* This ensures the container doesn't interfere with mouse events */
+    display: none; /* Hide the container by default */
+}
+
+.chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background-color: #181818;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    z-index: 1000;
+    opacity: 0.75;
+    text-align: center;
+    color: white;
+}
+
+/* Chat header */
+.chat-header {
+    font-size: 16px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Chat messages */
+.chat-messages {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    text-align: initial;
+}
+
+/* Individual chat message */
+.chat-message {
+    margin-bottom: 5px;
+}
+
+/* Chat input */
+.chat-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+    background-color: rgb(40,40,40);
+    color: white;
+}
+
+.chat-input::placeholder {
+    color: #c4c4c4; /* Change this to the desired brighter color */
+}
+
+.hidden {
+    display: none;
+}
+
+button#toggleChatButton{
+    position: absolute;
+    right: 50px;
+    top: 95px;
+    transform: translateY(-50%);
+    background-color: #000;
+    color: #fff;
+    padding: 8px;
+    /* border-radius: 5px 0 0 5px; */
+    cursor: pointer;
+    z-index: 2;
+}
+
+/* Styles for phones with a max width of 1280px */
+@media only screen and (max-width: 1280px) and (min-device-width: 320px) and (max-device-width: 767px) {
+    .paint-button {
+        height: 100px;
+        width: 200px;
+        font-size: 30px;
+    }
+
+    div#place-text {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    span#centerCoordinates {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    #colorPalette {
+        height: 250px;
+    }
+
+    .color {
+        width: 45px;
+        height: 45px;
+    }
+
+    #closeButton,
+    #applyButton {
+        width: 250px;
+        height: 50px;
+        font-size: 24px;
+    }
+}
+
+/* Styles for phones with a max width of 900px */
+@media only screen and (max-width: 900px) and (min-device-width: 320px) and (max-device-width: 767px) {
+    #colorPalette {
+        height: 250px;
+    }
+
+    .color {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* Styles for phones with a max width of 740px */
+@media only screen and (max-width: 740px) and (min-device-width: 320px) and (max-device-width: 767px) {
+    #colorPalette {
+        height: 250px;
+    }
+
+    .color {
+        width: 25px;
+        height: 25px;
+    }
+
+    .color-row {
+        flex-wrap: wrap;
+    }
+}
+
+#usercount {
+    position: absolute;
+    right: 50px;
+    top: 140px;
+    transform: translateY(-50%);
+    padding: 0px;
+    cursor: pointer;
+    z-index: 2;
+    border-radius: 0.225em;
+    color: #fff;
+    background-color: #000000bf;
+    width: 85px;
+    height: 30px;
+}
+
+#usercount svg {
+    width: 1.25em;
+    height: 1.25em;
+    overflow: visible;
+    color: currentcolor;
+    left: -2px;
+    top: 5px;
+    position: relative;
+}
+
+#online-user-count {
+    font-size: 22px;
+    top: 3px;
+    position: relative;
+    left: 0px;
+}
+
+#usersvg {
+    margin-left: 10px;
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="style.css" rel="stylesheet" as="style">
+  </head>
+  <body>
+    <div class="logox">ShloPlace</div>
+    <div class="warning-modal" id="warningModal">
+      <div class="warning-content">
+        <div class="warning-icon">⚠️</div>
+        <div class="warning-text">Rate Limited:<br>Das Nutzen von mehreren Accounts ist verboten!</div>
+      </div>
+    </div>
+
+    <div class="spinner-overlay" id="loadingOverlay">
+      <div class='tetrominos'>
+        <div class='tetromino box1'></div>
+        <div class='tetromino box2'></div>
+        <div class='tetromino box3'></div>
+        <div class='tetromino box4'></div>
+      </div>
+      <div id="load">
+        <div>G</div>
+        <div>N</div>
+        <div>I</div>
+        <div>D</div>
+        <div>A</div>
+        <div>O</div>
+        <div>L</div>
+      </div>
+    </div>
+
+    <button class="leaderboard-button" id="leaderboardButton">Leaderboard</button>
+    <div class="leaderboard-container">
+      <div class="leaderboard" id="leaderboard">
+        <div class="leaderboard-header">
+          <span class="leaderboard-rank">Rank</span>
+          <span class="leaderboard-user">Benutzer</span>
+          <span class="leaderboard-pixel">Pixel</span>
+        </div>
+        <div class="leaderboard-entries">
+          <!-- The leaderboard entries will be displayed here -->
+        </div>
+      </div>
+    </div>
+
+    <button id="toggleChatButton">Toggle Chat</button>
+
+    <div class="chat-container" id="chatContainer" style="display: none;">
+      <div class="chat-header">Chat</div>
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be displayed here -->
+      </div>
+      <input class="chat-input" id="chatInput" placeholder="Schreibe deine Nachricht und drücke Enter..." type="text">
+    </div>
+
+    <div id="usercount">
+      <svg id="usersvg" fill="none" height="1em" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0h24v24H0z" stroke="none"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.85"></path>
+      </svg>
+      <span id="online-user-count">0</span>
+    </div>
+
+
+    <div class="paint-button" id="paintButton">
+      <div id="place-text">Paint</div>
+      <span id="centerCoordinates">(0, 0)</span>
+    </div>
+
+    <canvas id="canvasx"></canvas>
+
+    <div id="pixelOwnerContainer"></div>
+
+    <div class="color-palette-container" id="colorPaletteContainer">
+      <div class="color-palette" id="colorPalette">
+        <div class="color-row">
+          <!-- Add color divs for the first row of the palette -->
+          <div class="color" style="background-color: #6D001A;"></div>
+          <div class="color" style="background-color: #BE0039;"></div>
+          <div class="color" style="background-color: #FF4500;"></div>
+          <div class="color" style="background-color: #FFA800;"></div>
+          <div class="color" style="background-color: #FFD635;"></div>
+          <div class="color" style="background-color: #FFF8B8;"></div>
+          <div class="color" style="background-color: #00A368;"></div>
+          <div class="color" style="background-color: #00CC78;"></div>
+          <div class="color" style="background-color: #7EED56;"></div>
+          <div class="color" style="background-color: #00756F;"></div>
+          <div class="color" style="background-color: #0099AA;"></div>
+          <div class="color" style="background-color: #00CCC0;"></div>
+          <div class="color" style="background-color: #2450A4;"></div>
+          <div class="color" style="background-color: #3690EA;"></div>
+          <div class="color" style="background-color: #51E9F4;"></div>
+          <div class="color" style="background-color: #493AC1;"></div>
+        </div>
+        <div class="color-row">
+          <!-- Add color divs for the third row of the palette -->
+          <div class="color" style="background-color: #6A5CFF;"></div>
+          <div class="color" style="background-color: #94B3FF;"></div>
+          <div class="color" style="background-color: #811E9F;"></div>
+          <div class="color" style="background-color: #B44AC0;"></div>
+          <div class="color" style="background-color: #E4ABFF;"></div>
+          <div class="color" style="background-color: #DE107F;"></div>
+          <div class="color" style="background-color: #FF3881;"></div>
+          <div class="color" style="background-color: #FF99AA;"></div>
+          <div class="color" style="background-color: #6D482F;"></div>
+          <div class="color" style="background-color: #9C6926;"></div>
+          <div class="color" style="background-color: #FFB470;"></div>
+          <div class="color" style="background-color: #000000;"></div>
+          <div class="color" style="background-color: #515252;"></div>
+          <div class="color" style="background-color: #898D90;"></div>
+          <div class="color" style="background-color: #D4D7D9;"></div>
+          <div class="color" style="background-color: #FFFFFF;"></div>
+        </div>
+        <div class="buttons-row">
+          <div class="close-button" id="closeButton">☓</div>
+          <div class="close-button" id="applyButton">✓</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Missing elements added below -->
+    <div id="mouse-pos"></div>
+    <div id="transformed-mouse-pos"></div>
+    <!-- End of added elements -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+    <script src="script.js" type="module"></script>
+  </body>
+</html>
